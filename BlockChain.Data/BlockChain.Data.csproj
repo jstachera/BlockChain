@@ -9,12 +9,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Entities\" />
     <Folder Include="Repositories\" />
     <Folder Include="ViewModels\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\BlockChain.Common\BlockChain.Common.csproj" />
   </ItemGroup>
 
 </Project>
