@@ -3,7 +3,7 @@
 using System;
 using System.IO;
 using System.Security.Cryptography;
-
+using System.Threading.Tasks;
 
 namespace BlockChain.Services
 {
@@ -22,30 +22,19 @@ namespace BlockChain.Services
         public bool HasData => Data != null;
         public int Nonce { get; set; } = 0;
         //TODO: refactor
-        public static SHA256 HashFunc { get; }
-
-        #endregion
-
-        #region Ctor
-
-        static Block()
-        {
-            HashFunc = SHA256.Create();
-        }
-
-        private Block()
-        {
-            ;
-        }
+        public SHA256 HashFunc { get; }
 
         #endregion
 
         #region Methods
 
-        public byte[] CalculateHash() => HashFunc.ComputeHash(GetDataToHash());
+        public byte[] CalculateHash() => HashFunc.ComputeHash(GetDataToHash(Nonce));
+
+        public byte[] CalculateHash(int nonce) => HashFunc.ComputeHash(GetDataToHash(nonce));
 
         public Block(byte[] previousHash, T data)
         {
+            HashFunc = SHA256.Create();
             Index = 0;
             TimeStamp = DateTime.Now;
             PreviousHash = previousHash;
@@ -63,14 +52,26 @@ namespace BlockChain.Services
         {
             byte[] pattern = new byte[difficulty];
             Array.Fill<byte>(pattern, 0);
-            while (Hash == null || !this.Hash.StartsWith(pattern))
+            while (Hash == null || !Hash.StartsWith(pattern))
             {
                 Nonce++;
                 Hash = CalculateHash();
             }
+            //Parallel.For(0, int.MaxValue,
+            //    (i, state) =>
+            //    {
+            //        byte[] h = this.CalculateHash(i);
+            //        if (h.StartsWith(pattern))
+            //        {
+            //            Nonce = i;
+            //            Hash = h;
+            //            state.Break();
+            //        }
+            //    }
+            //    );
         }
 
-        private byte[] GetDataToHash()
+        private byte[] GetDataToHash(long nonce)
         {
             byte[] dataToHash = null;
 
@@ -78,7 +79,7 @@ namespace BlockChain.Services
             {
                 byte[] timeStampBytes = TimeStamp.ToByteArray();
                 byte[] dataBytes = (HasData) ? Data.ToByteArray() : null;
-                byte[] nonceBytes = BitConverter.GetBytes(Nonce);
+                byte[] nonceBytes = BitConverter.GetBytes(nonce);
            
                 ms.Write(timeStampBytes, 0, timeStampBytes.Length);
                 if (PreviousHashLength > 0)

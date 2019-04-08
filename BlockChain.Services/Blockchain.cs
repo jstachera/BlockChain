@@ -8,9 +8,8 @@ using System.Text;
 
 namespace BlockChain.Services
 {
-    public class Blockchain<T> : IBlockchain<T> 
-        where T: class
-            
+    public class Blockchain<T> : IBlockchain<T> where T : class
+
     {
         #region Properties
         private IList<Block<T>> Chain { set; get; }
